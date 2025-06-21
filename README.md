@@ -40,6 +40,6 @@ Before getting started, ensure you have:
 
 ### 1. Clone and Install
 ```bash
-git clone https://github.com/Borovskova/okta-express-serverless-sample.git
+git clone https://github.com/Borovskova/express-okta-serverless-sample.git
 npm ci
 npm start

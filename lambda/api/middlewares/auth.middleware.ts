@@ -28,7 +28,7 @@ export class AuthMiddleware {
       next();
     } catch (error) {
       const errorMsg: string =
-        error?.message || "Error during auth token validation";
+        error?.message || "Error during auth token validation;";
       logger("error", errorMsg, "auth.middleware:validateToken");
 
       res.status(HttpStatus.UNAUTHIRIZED).json(httpResponseFailed(errorMsg));
