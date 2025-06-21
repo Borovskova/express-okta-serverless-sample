@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "module": "ES2022",
+    "moduleResolution": "node",
+    "target": "ES2022",
+    "esModuleInterop": true,
+    "outDir": "dist",
+    "rootDir": "lambdas",
+    "baseUrl": "."
+  },
+  "exclude": ["node_modules", "dist"]
+} 

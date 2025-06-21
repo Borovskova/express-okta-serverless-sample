@@ -1,0 +1,94 @@
+name: Deploy to AWS Lambda
+
+on:
+  push:
+    branches:
+      - stage
+      - master
+env:
+  AWS_REGION : "eu-west-1"
+  AWS_ACCOUNT_ID: "349456769513"
+  AWS_ROLE_PREFIX: "Github_Borovskova_"
+permissions:
+  id-token: write 
+  contents: read 
+jobs:
+  deploy-test:
+    runs-on: ubuntu-latest
+    if: ${{github.ref == 'refs/heads/stage'}}
+
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}-v1
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+  
+      - name: Build the project
+        run: npm run build
+
+      - name: Configure aws credentials for test deployment
+        uses: aws-actions/configure-aws-credentials@v3 
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.AWS_ROLE_PREFIX }}Non_Default_Branches
+          role-session-name: github-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Build app for test deployment using SAM CLI
+        run: sam build
+        
+      - name: Deploy to AWS Lambda for test deployment using SAM CLI
+        run: sam deploy --config-env test
+
+  deploy-prod:
+    runs-on: ubuntu-latest
+    if: ${{github.ref == 'refs/heads/master'}}
+
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}-v1
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+  
+      - name: Build the project
+        run: npm run build
+
+      - name: Configure aws credentials for production deployment
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.AWS_ROLE_PREFIX }}Default_Branches
+          role-session-name: github-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+        
+      - name: Build app for production deployment using SAM CLI
+        run: sam build
+
+      - name: Deploy to AWS Lambda for production deployment using SAM CLI
+        run: sam deploy --config-env prod

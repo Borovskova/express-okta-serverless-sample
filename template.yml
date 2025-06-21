@@ -1,0 +1,93 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  Environment:
+    Type: String
+    Default: test
+    AllowedValues:
+      - development
+      - production
+      - test 
+  DefaultAwsRegion:
+    Type: String
+    Default: eu-west-1
+
+Globals:
+  Function:
+    Runtime: nodejs18.x
+    MemorySize: 256
+    Timeout: 30
+    Environment:
+      Variables:
+        NODE_ENV: !Ref Environment
+        DEFAULT_AWS_REGION: !Ref DefaultAwsRegion
+
+Resources:
+  OktaExpressSampleGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "OktaExpressSampleGateway_${Environment}"
+      StageName: !Ref Environment
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS,PUT,HEAD,PATCH,DELETE'"
+        AllowHeaders: "'Content-Type,Authorization'"
+        AllowOrigin: "'*'"
+
+  OktaExpressSampleLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "OktaExpressSampleLambdaRole_${Environment}"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: OktaExpressSamplePolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource:
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/users/*"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/users"
+
+
+  OktaExpressSampleLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "OktaExpressSampleLambda_${Environment}"
+      CodeUri: dist/
+      Role: !GetAtt OktaExpressSampleLambdaRole.Arn
+      Handler: handler.handler
+      Timeout: 180 #3 min max execution time
+      MemorySize: 512 #MB RAM
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref OktaExpressSampleGateway
+            Path: /{proxy+}
+            Method: ANY
+            Stage: !Ref Environment
+
+Conditions:
+  IsProduction: !Equals [ !Ref Environment, production ]
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub https://${OktaExpressSampleGateway}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/ 

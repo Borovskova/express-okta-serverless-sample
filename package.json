@@ -1,0 +1,39 @@
+{
+  "name": "okta-express-serverless-sample",
+  "version": "1.0.0",
+  "description": "Eduction project on how to use Okta in ExpressJS app",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsx watch lambda/app.ts",
+    "build": "node build.js",
+    "format": "prettier --write \"lambda/**/*.ts\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Yevhennia Borovskova",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.15.2",
+    "esbuild": "^0.25.3",
+    "prettier": "^3.5.3",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.826.0",
+    "@aws-sdk/util-dynamodb": "^3.826.0",
+    "axios": "^1.9.0",
+    "body-parser-xml": "^2.0.5",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "raw-body": "^3.0.0",
+    "serverless-http": "^3.2.0"
+  }
+}

@@ -1,0 +1,42 @@
+version = 0.1
+[default.build.parameters]
+cached = true
+parallel = true
+
+[default.deploy.parameters]
+stack_name = "SAM-okta-express-serverless-sample-prod"
+resolve_s3 = true
+s3_prefix = "SAM-okta-express-serverless-sample-prod"
+region = "eu-west-1"
+confirm_changeset = false
+capabilities = "CAPABILITY_NAMED_IAM"
+parameter_overrides = "Environment=\"production\" DefaultAwsRegion=\"eu-west-1\""
+image_repositories = []
+disable_rollback = false
+
+
+[test]
+[test.deploy]
+[test.deploy.parameters]
+stack_name = "SAM-okta-express-serverless-sample-test"
+resolve_s3 = true
+s3_prefix = "SAM-okta-express-serverless-sample-test"
+region = "eu-west-1"
+confirm_changeset = false
+capabilities = "CAPABILITY_NAMED_IAM"
+parameter_overrides = "Environment=\"test\" DefaultAwsRegion=\"eu-west-1\""
+image_repositories = []
+disable_rollback = false
+
+[prod]
+[prod.deploy]
+[prod.deploy.parameters]
+stack_name = "SAM-okta-express-serverless-sample-prod"
+resolve_s3 = true
+s3_prefix = "SAM-okta-express-serverless-sample-prod"
+region = "eu-west-1"
+confirm_changeset = false
+capabilities = "CAPABILITY_NAMED_IAM"
+parameter_overrides = "Environment=\"production\" DefaultAwsRegion=\"eu-west-1\""
+image_repositories = []
+disable_rollback = false
